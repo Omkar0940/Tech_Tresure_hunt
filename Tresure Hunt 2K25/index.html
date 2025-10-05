@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Riddle Game - Multi Group</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <style>
+    body { 
+      font-family: Georgia, 'Times New Roman', Times, serif; 
+      text-align: center; 
+      margin-top: 40px;
+
+      /* Background image section */
+      background: url("images/tresurehuntmap.jpg") no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;  /* Makes text visible on dark background */
+    }
+    h2,h3,p{
+      color: black;
+    }
+
+    #reader { 
+      width: 250px; 
+      margin: auto; 
+      background: rgba(255, 255, 255, 0.8); /* semi-transparent white box */
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    #riddle-box { 
+      margin-top: 20px; 
+      font-size: 18px; 
+      font-weight: bold; 
+      color: #222; 
+      background: rgba(255,255,255,0.7);
+      padding: 10px;
+      border-radius: 8px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h2><b>Department Of Computer Applications</b></h2>
+  <h3><u>Tech Tresure Hunt 2025</u></h3>
+  <h2>🔍 Scan Your Group QR Code to Get Your Riddle</h2>
+  <p>Each group has its own QR codes. Make sure you scan the QR for your group!</p>
+
+  <div id="reader"></div>
+  <div id="riddle-box"></div>
+
+  <script>
+    // Riddle list for each group (5 riddles per group)
+    const groupRiddles = {
+      "1": ["G1-R1: I speak without a mouth and hear without ears.", 
+            "G1-R2: What has keys but can’t open locks?", 
+            "G1-R3: The more you take, the more you leave behind.", 
+            "G1-R4: I’m tall when I’m young, and short when I’m old.", 
+            "G1-R5: The more you share me, the less I am."],
+      "2": ["G2-R1: I fly without wings. What am I?", 
+            "G2-R2: I’m always in front of you but can’t be seen.", 
+            "G2-R3: What runs but never walks?", 
+            "G2-R4: I’m light as a feather, yet the strongest man can’t hold me.", 
+            "G2-R5: I have cities but no houses, rivers but no water."],
+      "3": ["G3-R1: I’m full of holes but still hold water.", 
+            "G3-R2: The more of me you take, the more you leave behind.", 
+            "G3-R3: I’m not alive, but I grow. What am I?", 
+            "G3-R4: I can be cracked, made, told, and played.", 
+            "G3-R5: What has a heart that doesn’t beat?"],
+      "4": ["G4-R1: What has hands but can’t clap?", 
+            "G4-R2: I’m tall when I’m young, short when I’m old.", 
+            "G4-R3: What has a neck but no head?", 
+            "G4-R4: The more you take from me, the bigger I get.", 
+            "G4-R5: I’m always hungry and will die if not fed."],
+      "5": ["G5-R1: What has many teeth but can’t bite?", 
+            "G5-R2: I’m always coming but never arrive.", 
+            "G5-R3: What can travel around the world while staying in a corner?", 
+            "G5-R4: I’m broken if you say my name.", 
+            "G5-R5: What has one eye but can’t see?"],
+      "6": ["G6-R1: I’m tall when I’m young, short when I’m old.", 
+            "G6-R2: The more you take from me, the bigger I get.", 
+            "G6-R3: What can you catch but not throw?", 
+            "G6-R4: I’m always in water but never get wet.", 
+            "G6-R5: I can be cracked, told, and played."],
+      "7": ["G7-R1: I have keys but no locks.", 
+            "G7-R2: I can fly without wings.", 
+            "G7-R3: The more you take, the more you leave behind.", 
+            "G7-R4: I’m light as a feather.", 
+            "G7-R5: What has hands but can’t clap?"],
+      "8": ["G8-R1: I can run but never walk.", 
+            "G8-R2: I have cities but no houses.", 
+            "G8-R3: I’m always hungry.", 
+            "G8-R4: I’m broken if you say my name.", 
+            "G8-R5: I’m full of holes but hold water."],
+      "9": ["G9-R1: I’m not alive but I grow.", 
+            "G9-R2: I’m always coming but never arrive.", 
+            "G9-R3: What has a heart that doesn’t beat?", 
+            "G9-R4: I’m always in front of you but can’t be seen.", 
+            "G9-R5: I can be cracked, made, told, and played."],
+      "10": ["G10-R1: I can travel around the world while staying in a corner.", 
+             "G10-R2: What can you catch but not throw?", 
+             "G10-R3: I’m light as a feather.", 
+             "G10-R4: The more of me you take, the more you leave behind.", 
+             "G10-R5: I have keys but no locks."]
+    };
+
+    function onScanSuccess(qrMessage) {
+      // QR format: "group-riddleIndex" e.g., "3-2" = Group 3, Riddle 2
+      const [group, riddleIndex] = qrMessage.split("-");
+      const riddle = groupRiddles[group]?.[parseInt(riddleIndex)-1] || "❌ Invalid QR! Make sure you scanned the correct group QR.";
+      
+      document.getElementById("riddle-box").innerText = riddle;
+      alert(riddle); // popup
+    }
+
+    // Default back camera setup
+    Html5Qrcode.getCameras().then(cameras => {
+      if (cameras && cameras.length) {
+        let backCamera = cameras.find(cam => cam.label.toLowerCase().includes("back")) || cameras[0];
+        
+        const html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start(
+          { deviceId: { exact: backCamera.id } },
+          { fps: 10, qrbox: 250 },
+          onScanSuccess
+        ).catch(err => {
+          console.error("Unable to start camera:", err);
+        });
+      } else {
+        alert("No camera found on this device!");
+      }
+    }).catch(err => {
+      console.error("Error getting cameras:", err);
+    });
+  </script>
+</body>
+</html>
